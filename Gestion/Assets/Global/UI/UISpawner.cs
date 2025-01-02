@@ -21,23 +21,29 @@ namespace Global.UI
         private ScreenUIController OnSpawnScreen(ScreenType screenType, Transform parent)
         {
             ScreenView screenView = screens.Find(x => x.screenType == screenType);
-            int index = _currentScreentControllers.FindIndex(x => x.screenType == screenType);
             ScreenUIController controller = null;
-
-            // if already have this controller
-            if (index != -1)
+            if (screenView.isUnique)
             {
-                controller = _currentScreentControllers[index].screenController;
-                return controller;
-            }
+                int index = _currentScreentControllers.FindIndex(x => x.screenType == screenType);
 
+
+                // if already have this controller
+                if (index != -1)
+                {
+                    controller = _currentScreentControllers[index].screenController;
+                    return controller;
+                }
+            }
             var content = parent ? parent : contentParent;
 
             if (screenView.screenController)
             {
                 controller = Instantiate(screenView.screenController, content);
             }
-            _currentScreentControllers.Add(new ScreenView { screenType = screenType, screenController = controller });
+            if (screenView.isUnique)
+            {
+                _currentScreentControllers.Add(new ScreenView { screenType = screenType, screenController = controller });
+            }
             return controller;
         }
 
@@ -75,5 +81,6 @@ namespace Global.UI
     {
         public ScreenType screenType;
         public ScreenUIController screenController;
+        public bool isUnique;
     }
 }

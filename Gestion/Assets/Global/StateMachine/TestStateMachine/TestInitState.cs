@@ -16,7 +16,15 @@ namespace Global.StateMachine.States
         IEnumerator TestChangeState()
         {
             yield return new WaitForSeconds(4);
-            Host.ChangeState(Host.IdleState);
+            if (NextState != null)
+            {
+                Host.ChangeState(NextState);
+            }
+            else
+            {
+                Host.ChangeState(Host.IdleState);
+            }
+
         }
 
         public override void Exit()

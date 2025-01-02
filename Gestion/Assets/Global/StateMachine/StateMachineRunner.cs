@@ -51,5 +51,5 @@ namespace Global.StateMachine
         public ScreenType screenType;
         public GlobalStateMachine stateMachine;
     }
-    public enum ScreenType { None, Login, Loader, Collection} 
+    public enum ScreenType { None, Login, Loader, Collection, Types, Warning, CollectionToggle, ActionButton, HomeCollectioncontroller, ModuleController, InputFieldController } 
 }
