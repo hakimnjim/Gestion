@@ -16,6 +16,7 @@ namespace Global.ScribtableObject
         public string typeName; // The name of the type, e.g., "Stock", "Buy"
         [TextArea]
         public string description; // Optional: Description of the type
+        public List<string> types;
         public Sprite icon; // Optional: An icon for the type
     }
 }
