@@ -105,7 +105,17 @@ namespace Global.Editor
                 return;
             }
             string spawnerContent = File.ReadAllText(spawnerPath);
-            if (!spawnerContent.Contains(screenName))
+            int classEndIndex = spawnerContent.LastIndexOf("/**/");
+            if (classEndIndex > 0)
+            {
+                spawnerContent = spawnerContent.Insert(classEndIndex - 1, $", {screenName}");
+                File.WriteAllText(spawnerPath, spawnerContent);
+            }
+            else
+            {
+                Debug.LogError("Null index of");
+            }
+            /*if (!spawnerContent.Contains(screenName))
             {
                 string newScreen = $@"
         screens.Add(new ScreenView 
@@ -117,7 +127,7 @@ namespace Global.Editor
                 spawnerContent = spawnerContent.Replace("// Add new screens here", newScreen + "\n        // Add new screens here");
                 File.WriteAllText(spawnerPath, spawnerContent);
                 Debug.Log($"Updated UISpawner with {screenName}");
-            }
+            }*/
         }
 
         private void UpdateScreenUIController()
@@ -168,7 +178,7 @@ namespace Global.StateMachine.States
         {{
             base.Enter(host);
 
-            var controller = (CreateModuleController)GlobalEventManager.OnSpawnScreen(ScreenType.{moduleName}, null);
+            var controller = (CreateModuleController)GlobalEventManager.OnSpawnScreen(ScreenType.{screenName}, null);
             controller.Init(new {structName}
             {{
                 {GenerateStructInit()}
@@ -201,7 +211,7 @@ namespace Global.ScreenUIControllers
         {{
             base.Init(config);
 
-            title.text = config.title;
+            //title.text = config.title;
 
             // Add dynamic UI elements here
             {GenerateDynamicUI()}
