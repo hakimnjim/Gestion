@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace Global.ScreenUIControllers
 {
+    public static class UIConfig
+    {
+        public const float FadeDuration = 0.5f;
+    }
     public class ScreenUIController : MonoBehaviour
     {
         [SerializeField] private CanvasGroup canvasGroup;
@@ -66,10 +70,12 @@ namespace Global.ScreenUIControllers
             Init();
         }
 
+
+       
+
+
+ //**
     }
 
-    public static class UIConfig
-    {
-        public const float FadeDuration = 0.5f;
-    }
 }
+
