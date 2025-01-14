@@ -70,10 +70,6 @@ namespace Global.ScreenUIControllers
             Init();
         }
 
-
-       
-
-
  //**
     }
 
