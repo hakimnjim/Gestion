@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using TMPro;
 
 namespace Global.Editor
 {
@@ -71,8 +72,6 @@ namespace Global.Editor
                 UpdateSpawner();
                 UpdateScreenUIController();
             }
-
-
         }
 
         private void GenerateScripts()
@@ -97,6 +96,7 @@ namespace Global.Editor
             AssetDatabase.Refresh();
             Debug.Log("Scripts Generated Successfully!");
         }
+
         private void UpdateSpawner()
         {
             if (!File.Exists(spawnerPath))
@@ -145,6 +145,7 @@ namespace Global.Editor
 
     public virtual void Init({moduleName}Struct data)
     {{
+        Init();
         // Initialize {moduleName} data
     }}
 ";
@@ -162,6 +163,7 @@ namespace Global.Editor
                 Debug.LogWarning($"Init method for {moduleName}Struct already exists in ScreenUIController.");
             }
         }
+
         private string GenerateStateScript()
         {
             return $@"
@@ -190,12 +192,34 @@ namespace Global.StateMachine.States
             base.Exit();
         }}
     }}
-}}
-";
+}}";
         }
 
         private string GenerateControllerScript()
         {
+            string controllerFields = "";
+            string initCode = "";
+
+            foreach (var variable in variables)
+            {
+                // Dynamically declare UI elements and initialize them in the controller
+                if (variable.uiRepresentation == UIRepresentation.TextInput)
+                {
+                    controllerFields += $"\n        [SerializeField] private TextMeshProUGUI {variable.name}Input;";
+                    initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
+                }
+                else if (variable.uiRepresentation == UIRepresentation.Dropdown)
+                {
+                    controllerFields += $"\n        [SerializeField] private TMP_Dropdown {variable.name}Dropdown;";
+                    initCode += $"\n            // Set dropdown values for {variable.name}Dropdown based on config.{variable.name};";
+                }
+                else if (variable.uiRepresentation == UIRepresentation.Toggle)
+                {
+                    controllerFields += $"\n        [SerializeField] private Toggle {variable.name}Toggle;";
+                    initCode += $"\n            {variable.name}Toggle.isOn = config.{variable.name};";
+                }
+            }
+
             return $@"
 using System.Collections.Generic;
 using UnityEngine;
@@ -205,20 +229,15 @@ namespace Global.ScreenUIControllers
 {{
     public class {controllerClassName} : ScreenUIController
     {{
-        [SerializeField] private TextMeshProUGUI title;
+        {controllerFields}
 
         public override void Init({structName} config)
         {{
             base.Init(config);
-
-            //title.text = config.title;
-
-            // Add dynamic UI elements here
-            {GenerateDynamicUI()}
+            {initCode}
         }}
     }}
-}}
-";
+}}";
         }
 
         private string GenerateStructScript()
@@ -239,8 +258,7 @@ namespace Global.ScreenUIControllers
     {{
         {structFields}
     }}
-}}
-";
+}}";
         }
 
         private string GenerateStructInit()
@@ -253,27 +271,6 @@ namespace Global.ScreenUIControllers
             return init.TrimEnd(',');
         }
 
-        private string GenerateDynamicUI()
-        {
-            string uiCode = "";
-            foreach (var variable in variables)
-            {
-                if (variable.uiRepresentation == UIRepresentation.TextInput)
-                {
-                    uiCode += $"\n            // Add TextInput for {variable.name}";
-                }
-                else if (variable.uiRepresentation == UIRepresentation.Dropdown)
-                {
-                    uiCode += $"\n            // Add Dropdown for {variable.name}";
-                }
-                else if (variable.uiRepresentation == UIRepresentation.Toggle)
-                {
-                    uiCode += $"\n            // Add Toggle for {variable.name}";
-                }
-            }
-            return uiCode;
-        }
-
         private string GetTypeString(VariableType type)
         {
             switch (type)
@@ -282,6 +279,7 @@ namespace Global.ScreenUIControllers
                 case VariableType.Int: return "int";
                 case VariableType.Float: return "float";
                 case VariableType.Bool: return "bool";
+                case VariableType.ListOfString: return "List<string>";
                 default: return "string";
             }
         }
@@ -291,7 +289,8 @@ namespace Global.ScreenUIControllers
             String,
             Int,
             Float,
-            Bool
+            Bool,
+            ListOfString
         }
 
         private enum UIRepresentation
@@ -309,4 +308,3 @@ namespace Global.ScreenUIControllers
         }
     }
 }
-
