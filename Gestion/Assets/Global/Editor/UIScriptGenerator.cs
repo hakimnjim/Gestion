@@ -93,8 +93,42 @@ namespace Global.Editor
             string structScript = GenerateStructScript();
             System.IO.File.WriteAllText($"{scriptsFolder}/Screens/{structName}.cs", structScript);
 
+            GenerateReport(scriptsFolder);
+
             AssetDatabase.Refresh();
             Debug.Log("Scripts Generated Successfully!");
+        }
+
+        private void GenerateReport(string folderPath)
+        {
+            // Path to the report file
+            string reportPath = $"{folderPath}/ScriptGenerationReport.txt";
+
+            // Build report content
+            string reportContent = $"Script Generation Report\n";
+            reportContent += $"Generated at: {System.DateTime.Now}\n";
+            reportContent += $"------------------------------------\n";
+            reportContent += $"Module Name: {moduleName}\n";
+            reportContent += $"Struct Name: {structName}\n";
+            reportContent += $"State Class Name: {stateClassName}\n";
+            reportContent += $"Controller Class Name: {controllerClassName}\n";
+            reportContent += $"Screen Name: {screenName}\n\n";
+
+            reportContent += "Variables:\n";
+
+            foreach (var variable in variables)
+            {
+                reportContent += $"- {variable.name} ({GetTypeString(variable.type)}), UI: {variable.uiRepresentation}\n";
+            }
+
+            reportContent += $"\nScripts Generated:\n";
+            reportContent += $"- {folderPath}/StateMachine/General/{stateClassName}.cs\n";
+            reportContent += $"- {folderPath}/Screens/{controllerClassName}.cs\n";
+            reportContent += $"- {folderPath}/Screens/{structName}.cs\n";
+
+            // Write the report to a text file
+            File.WriteAllText(reportPath, reportContent);
+            Debug.Log($"Report generated at {reportPath}");
         }
 
         private void UpdateSpawner()
