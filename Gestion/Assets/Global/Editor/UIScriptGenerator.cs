@@ -263,7 +263,7 @@ namespace Global.StateMachine.States
                 }
                 else if (variable.uiRepresentation == UIRepresentation.InputField)
                 {
-                    if (GetTypeString(variable.type) != "List<string>")
+                    if (GetTypeString(variable.type) == "List<string>")
                     {
                         controllerFields += $"\n        [SerializeField] private InputFieldController {variable.name}Prefab;";
                         controllerFields += $"\n        [SerializeField] private Transform {variable.name}ParentContent;";
@@ -277,10 +277,10 @@ namespace Global.StateMachine.States
                 }
                 else if (variable.uiRepresentation == UIRepresentation.Button)
                 {
-                    if (GetTypeString(variable.type) != "List<string>")
+                    if (GetTypeString(variable.type) == "List<string>")
                     {
                         controllerFields += $"\n        [SerializeField] private ActionButtonController {variable.name}Prefab;";
-                        controllerFields += $"\n        [SerializeField] private Transnform {variable.name}ParentContent;";
+                        controllerFields += $"\n        [SerializeField] private Transform {variable.name}ParentContent;";
                     }
                     else
                     {
