@@ -60,7 +60,7 @@ namespace Global.Editor
 
             if (GUILayout.Button("+ Add Variable"))
             {
-                variables.Add(new VariableConfig { name = "NewVariable", type = VariableType.String, uiRepresentation = UIRepresentation.TextInput });
+                variables.Add(new VariableConfig { name = "NewVariable", type = VariableType.String, uiRepresentation = UIRepresentation.Text });
             }
 
             GUILayout.Space(20);
@@ -237,7 +237,7 @@ namespace Global.StateMachine.States
             foreach (var variable in variables)
             {
                 // Dynamically declare UI elements and initialize them in the controller
-                if (variable.uiRepresentation == UIRepresentation.TextInput)
+                if (variable.uiRepresentation == UIRepresentation.Text)
                 {
                     controllerFields += $"\n        [SerializeField] private TextMeshProUGUI {variable.name}Input;";
                     initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
@@ -245,12 +245,48 @@ namespace Global.StateMachine.States
                 else if (variable.uiRepresentation == UIRepresentation.Dropdown)
                 {
                     controllerFields += $"\n        [SerializeField] private TMP_Dropdown {variable.name}Dropdown;";
-                    initCode += $"\n            // Set dropdown values for {variable.name}Dropdown based on config.{variable.name};";
+                    //initCode += $"\n            // Set dropdown values for {variable.name}Dropdown based on config.{variable.name};";
                 }
                 else if (variable.uiRepresentation == UIRepresentation.Toggle)
                 {
-                    controllerFields += $"\n        [SerializeField] private Toggle {variable.name}Toggle;";
-                    initCode += $"\n            {variable.name}Toggle.isOn = config.{variable.name};";
+                    if (GetTypeString(variable.type) != "List<string>")
+                    {
+                        controllerFields += $"\n        [SerializeField] private CheckBoxController {variable.name}Prefab;";
+                        controllerFields += $"\n        [SerializeField] private Transform {variable.name}ParentContent;";
+                    }
+                    else
+                    {
+                        controllerFields += $"\n        [SerializeField] private Toggle {variable.name}Toggle;";
+                        initCode += $"\n            {variable.name}Toggle.isOn = config.{variable.name};";
+                    }
+
+                }
+                else if (variable.uiRepresentation == UIRepresentation.InputField)
+                {
+                    if (GetTypeString(variable.type) != "List<string>")
+                    {
+                        controllerFields += $"\n        [SerializeField] private InputFieldController {variable.name}Prefab;";
+                        controllerFields += $"\n        [SerializeField] private Transform {variable.name}ParentContent;";
+                    }
+                    else
+                    {
+                        controllerFields += $"\n        [SerializeField] private InputField {variable.name}Input;";
+                        initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
+                    }
+
+                }
+                else if (variable.uiRepresentation == UIRepresentation.Button)
+                {
+                    if (GetTypeString(variable.type) != "List<string>")
+                    {
+                        controllerFields += $"\n        [SerializeField] private ActionButtonController {variable.name}Prefab;";
+                        controllerFields += $"\n        [SerializeField] private Transnform {variable.name}ParentContent;";
+                    }
+                    else
+                    {
+                        controllerFields += $"\n        [SerializeField] private Button {variable.name}Input;";
+                        initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
+                    }
                 }
             }
 
@@ -258,6 +294,7 @@ namespace Global.StateMachine.States
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 namespace Global.ScreenUIControllers
 {{
@@ -279,7 +316,31 @@ namespace Global.ScreenUIControllers
             string structFields = "";
             foreach (var variable in variables)
             {
-                structFields += $"\n        public {GetTypeString(variable.type)} {variable.name};";
+                if (variable.uiRepresentation == UIRepresentation.InputField)
+                {
+                    structFields += $"\n        public Action<string> OnValueChange{variable.name};";
+                    if (GetTypeString(variable.type) != "null")
+                    {
+                        structFields += $"\n        public {GetTypeString(variable.type)} {variable.name};";
+                    }
+                }
+                else if (variable.uiRepresentation == UIRepresentation.Button)
+                {
+                    structFields += $"\n        public Action OnClick{variable.name};";
+                    if (GetTypeString(variable.type) != "null")
+                    {
+                        structFields += $"\n        public {GetTypeString(variable.type)} {variable.name};";
+                    }
+                }
+                else if (variable.uiRepresentation == UIRepresentation.Toggle)
+                {
+                    structFields += $"\n        public {GetTypeString(variable.type)} {variable.name};";
+                    structFields += $"\n        public Action<string> OnToggleChange{variable.name};";
+                }
+                else
+                {
+                    structFields += $"\n        public {GetTypeString(variable.type)} {variable.name};";
+                }
             }
 
             return $@"
@@ -314,12 +375,14 @@ namespace Global.ScreenUIControllers
                 case VariableType.Float: return "float";
                 case VariableType.Bool: return "bool";
                 case VariableType.ListOfString: return "List<string>";
+                case VariableType.Null: return "null";
                 default: return "string";
             }
         }
 
         private enum VariableType
         {
+            Null,
             String,
             Int,
             Float,
@@ -329,9 +392,11 @@ namespace Global.ScreenUIControllers
 
         private enum UIRepresentation
         {
-            TextInput,
+            Text,
             Dropdown,
-            Toggle
+            Toggle,
+            InputField,
+            Button
         }
 
         private class VariableConfig
