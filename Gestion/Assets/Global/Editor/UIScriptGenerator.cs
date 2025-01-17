@@ -224,6 +224,7 @@ namespace Global.StateMachine.States
         public override void Exit()
         {{
             base.Exit();
+            GlobalEventManager.OnDestroyScreenController(ScreenType.{screenName}, null);
         }}
     }}
 }}";
@@ -358,12 +359,13 @@ namespace Global.ScreenUIControllers
 
         private string GenerateStructInit()
         {
-            string init = "";
+            /*string init = "";
             foreach (var variable in variables)
             {
                 init += $"\n                {variable.name} = default,";
             }
-            return init.TrimEnd(',');
+            return init.TrimEnd(',');*/
+            return "";
         }
 
         private string GetTypeString(VariableType type)
