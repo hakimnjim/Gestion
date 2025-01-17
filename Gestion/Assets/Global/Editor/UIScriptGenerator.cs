@@ -249,7 +249,7 @@ namespace Global.StateMachine.States
                 }
                 else if (variable.uiRepresentation == UIRepresentation.Toggle)
                 {
-                    if (GetTypeString(variable.type) != "List<string>")
+                    if (GetTypeString(variable.type) == "List<string>")
                     {
                         controllerFields += $"\n        [SerializeField] private CheckBoxController {variable.name}Prefab;";
                         controllerFields += $"\n        [SerializeField] private Transform {variable.name}ParentContent;";
@@ -257,7 +257,7 @@ namespace Global.StateMachine.States
                     else
                     {
                         controllerFields += $"\n        [SerializeField] private Toggle {variable.name}Toggle;";
-                        initCode += $"\n            {variable.name}Toggle.isOn = config.{variable.name};";
+                        //initCode += $"\n            {variable.name}Toggle.isOn = config.{variable.name};";
                     }
 
                 }
@@ -271,7 +271,7 @@ namespace Global.StateMachine.States
                     else
                     {
                         controllerFields += $"\n        [SerializeField] private InputField {variable.name}Input;";
-                        initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
+                        //initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
                     }
 
                 }
@@ -285,7 +285,7 @@ namespace Global.StateMachine.States
                     else
                     {
                         controllerFields += $"\n        [SerializeField] private Button {variable.name}Input;";
-                        initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
+                        //initCode += $"\n            {variable.name}Input.text = config.{variable.name};";
                     }
                 }
             }
